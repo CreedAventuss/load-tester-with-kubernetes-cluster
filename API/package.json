@@ -1,0 +1,27 @@
+{
+  "name": "load-tester-web-server",
+  "version": "1.0.0",
+  "description": "provisional server with NodeJs",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:mysql": "nodemon server-with-mysql.js"
+  },
+  "author": "izangildev",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "eslint": "^8.57.1",
+    "express": "^4.21.1",
+    "mysql2": "^3.11.3",
+    "nodemon": "^3.1.7",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "standard": "^17.1.2"
+  },
+  "eslintConfig": {
+    "extends": "standard"
+  }
+}
