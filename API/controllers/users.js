@@ -1,32 +1,52 @@
+// Controller for users
 import { validateUser, validatePartialUser } from '../schemas/users.js'
 
+// Class to manage users
+// All methods call the model to interact with the database
+// Controllers are responsible for handling requests and responses
+// Also controller validates the request data
+// All methods are wrapped with try-catch to handle errors
 export class UserController {
+  // Constructor receives the user model to know whom to call
   constructor ({ userModel }) {
     this.userModel = userModel
   }
 
+  // Get all users
+  // Respond with a JSON object with all users
   getAllUsers = async (req, res) => {
     const users = await this.userModel.getAllUsers()
     res.json(users)
   }
 
+  // Get user by id
+  // Respond with a JSON object with the user
   getUserById = async (req, res) => {
     const { id } = req.params
     const user = await this.userModel.getUserById({ id })
     res.json(user)
   }
 
+  // Register a new user
+  // Respond with a JSON object with the new user and a success message
   registerUser = async (req, res) => {
     const result = validateUser(req.body)
     if (result.error) {
       return res.status(400).json(result.error.message)
     }
 
+    // First check if username or email already exists
     try {
       const userExists = await this.userModel.userExists({ username: req.body.username })
       if (userExists) {
         const username = req.body.username
         return res.status(400).json({ message: `Username ${username} is already in use, try another one` })
+      }
+
+      const emailExists = await this.userModel.emailExists({ email: req.body.email })
+      if (emailExists) {
+        const email = req.body.email
+        return res.status(400).json({ message: `Email ${email} is already in use, try another one` })
       }
 
       const newUser = await this.userModel.registerUser({ input: req.body })
@@ -36,6 +56,9 @@ export class UserController {
     }
   }
 
+  // Login a user
+  // If the user is found in the database, return a message with { isAuth: true }
+  // This object can be used in the frontend to know if the user is authenticated
   loginUser = async (req, res) => {
     const { username, password } = req.body
     if (!username || !password) {
@@ -53,25 +76,10 @@ export class UserController {
     } catch (error) {
       return res.status(500).json({ message: 'Error logging in' })
     }
-
-    // Para acceder desde el frontend:
-    //   const handleLogin = async () => {
-    //     try {
-    //         const response = await axios.post('http://localhost:3000/users/login', { username, password });
-    //         setIsAuthenticated(response.data.isAuth);
-    //         setMessage(response.data.message);
-    //     } catch (error) {
-    //         if (error.response && error.response.status === 401) {
-    //             setIsAuthenticated(false);
-    //             setMessage(error.response.data.message);
-    //         } else {
-    //             console.error('Error logging in:', error);
-    //             setMessage('An error occurred. Please try again.');
-    //         }
-    //     }
-    // }
   }
 
+  // Modify user password
+  // Respond with a success message if the password is modified
   modifyPassword = async (req, res) => {
     const result = validatePartialUser(req.body)
     if (result.error) {
@@ -98,6 +106,8 @@ export class UserController {
     }
   }
 
+  // Modify username
+  // Respond with a success message if the username is modified
   modifyUsername = async (req, res) => {
     const result = validatePartialUser(req.body)
     if (result.error) {
@@ -122,6 +132,8 @@ export class UserController {
     }
   }
 
+  // Delete user
+  // Respond with a success message if the user is deleted
   deleteUser = async (req, res) => {
     const result = validatePartialUser(req.body)
     if (result.error) {

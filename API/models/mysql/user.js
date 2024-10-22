@@ -1,7 +1,10 @@
+// Model of the user entity for MySQL database
+
 import mysql from 'mysql2/promise'
 
 import { encrypt } from '../../encryptText.js'
 
+// Configuration object for MySQL connection
 const config = {
   host: 'localhost',
   user: 'root',
@@ -10,21 +13,41 @@ const config = {
   database: 'NetControlDB'
 }
 
+// Secret key for encrypting passwords
 const SECRET_KEY = 'SecretKeyNetControlSolutionsSL'
 
 const connection = await mysql.createConnection(config)
 
+// Function to verify if a user exists in the database with username and password provided
+const verifyUser = async (username, password) => {
+  try {
+    const [user] = await connection.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password])
+    if (user.length === 0) {
+      return false
+    }
+    return true
+  } catch (error) {
+    throw new Error('Error at verifying user')
+  }
+}
+
+// Model of the user entity to interact with the MySQL database
 export class UserModel {
+  // Get all users from the database
   static async getAllUsers () {
     const [users] = await connection.query('SELECT * FROM users')
     return users
   }
 
+  // Get a user by its ID
   static async getUserById ({ id }) {
     const [user] = await connection.query('SELECT * FROM users WHERE idUser = ?', [id])
     return user
   }
 
+  // Register a new user in the database with data provided
+  // Data must be an object with the following properties:
+  // name, surname, username, email, birthDate, password
   static async registerUser ({ input }) {
     const registerDate = new Date().toISOString().slice(0, 10)
 
@@ -37,7 +60,6 @@ export class UserModel {
       password
     } = input
 
-    // Encrypt password here:
     const encryptedPassword = encrypt(password, SECRET_KEY)
 
     try {
@@ -53,6 +75,7 @@ export class UserModel {
     }
   }
 
+  // Login a user with username and password provided
   static async loginUser ({ username, password }) {
     // Encrypt password here:
     const encryptedPassword = encrypt(password, SECRET_KEY)
@@ -67,13 +90,12 @@ export class UserModel {
     }
   }
 
+  // Modify the password of a user with username provided
   static async modifyPassword ({ username, oldPassword, newPassword }) {
-    // Encrypt oldPassword and newPassword here:
     oldPassword = encrypt(oldPassword, SECRET_KEY)
     newPassword = encrypt(newPassword, SECRET_KEY)
 
-    const [user] = await connection.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, oldPassword])
-    if (user.length === 0) {
+    if (!verifyUser(username, oldPassword)) {
       return null
     }
 
@@ -85,11 +107,11 @@ export class UserModel {
     }
   }
 
+  // Modify the username of a user with username provided
   static async modifyUsername ({ username, password, newUsername }) {
-    // Encrypt password here:
     password = encrypt(password, SECRET_KEY)
-    const [user] = await connection.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password])
-    if (user.length === 0) {
+
+    if (!verifyUser(username, password)) {
       return null
     }
 
@@ -101,11 +123,11 @@ export class UserModel {
     }
   }
 
+  // Delete the user that matches the username and password provided
   static async deleteUser ({ username, password }) {
-    // Encrypt password here:
     password = encrypt(password, SECRET_KEY)
-    const [user] = await connection.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password])
-    if (user.length === 0) {
+
+    if (!verifyUser(username, password)) {
       return null
     }
 
@@ -117,9 +139,17 @@ export class UserModel {
     }
   }
 
+  // Check if there is a user registred with the username provided
   static async userExists ({ username }) {
     const [user] = await connection.query('SELECT * FROM users WHERE username = ?', [username])
-    // Retorna true si hay un usuario con ese nombre de usuario (user.length > 0, si es mayor a 0, hay un usuario)
+    // Retorna true si hay un usuario con ese nombre de usuario
+    return user.length > 0
+  }
+
+  // Check if there is a user registred with the email provided
+  static async emailExists ({ email }) {
+    const [user] = await connection.query('SELECT * FROM users WHERE email = ?', [email])
+    // Retorna true si hay un usuario con ese correo electrónico
     return user.length > 0
   }
 }

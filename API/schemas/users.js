@@ -1,3 +1,6 @@
+// User schema used to validate user data
+// Every validation error will be returned as a message
+
 import { z } from 'zod'
 
 const emailSchema = z.string().regex(
