@@ -3,7 +3,7 @@
 
 import mysql from 'mysql2/promise'
 
-import { encrypt } from '../../encryptText.js'
+import { encrypt } from '../encryptText.js'
 
 // Configuration object for MySQL connection
 const config = {
