@@ -37,7 +37,7 @@ const userSchema = z.object({
   password: z.string({
     invalid_type_error: 'Password must be a string',
     required_error: 'Password is required'
-  }).min(8, { message: 'Minimum of 8 characters' })
+  }).min(4, { message: 'Minimum of 8 characters' })
 })
 
 export function validateUser (object) {

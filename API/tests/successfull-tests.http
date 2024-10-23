@@ -1,0 +1,56 @@
+### Get all users
+GET http://localhost:3000/users
+
+### Get user by id
+GET http://localhost:3000/users/3
+
+### Register user name, surname, namesurname, name@gmail.com, 2004-07-14, sample
+POST http://localhost:3000/users/register
+Content-Type: application/json
+
+{
+    "name": "Izan",
+    "surname": "Gil",
+    "username": "izangil",
+    "email": "izan@gmail.com",
+    "birthDate": "2004-07-14",
+    "password": "sample"
+}
+
+### login user
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+    "username": "izangil",
+    "password": "newpassword"
+}
+
+### Change password
+PATCH http://localhost:3000/users/changePassword
+Content-Type: application/json
+
+{
+    "username": "izangil",
+    "oldPassword": "newpassword",
+    "newPassword": "izangil"
+}
+
+### Change username
+PATCH http://localhost:3000/users/changeUsername
+Content-Type: application/json
+
+{
+    "username": "izangil2",
+    "password": "newpassword",
+    "newUsername": "izangil"
+}
+
+### Delete user
+DELETE http://localhost:3000/users/delete
+Content-Type: application/json
+
+{
+    "username": "bobjohnson",
+    "password": "hashed_password4"
+}

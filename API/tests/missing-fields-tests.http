@@ -1,0 +1,48 @@
+### Register user with missing fields
+POST http://localhost:3000/users/register
+Content-Type: application/json
+
+{
+    "surname": "Error",
+    "username": "Sample",
+    "email": "sampleError@gmail.com",
+    "birthDate": "1947-01-01",
+    "password": "needToEncrypt"
+}
+
+
+### login user with missing fields
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+    "username": "izangildev"
+}
+
+### Change password with no fields
+PATCH http://localhost:3000/users/changePassword
+Content-Type: application/json
+
+{
+    "username": "izangildev",
+    "oldPassword": "PASSWORD"
+}
+
+### Change username with missing fields
+PATCH http://localhost:3000/users/changeUsername
+Content-Type: application/json
+
+{
+    "username": "johndoe",
+    "newUsername": "johndoe2"
+}
+
+
+
+### Delete user with missing fields
+DELETE http://localhost:3000/users/delete
+Content-Type: application/json
+
+{
+    "username": "bobjohnson"
+}

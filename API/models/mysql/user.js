@@ -1,4 +1,5 @@
 // Model of the user entity for MySQL database
+// Every method writes a log in the database
 
 import mysql from 'mysql2/promise'
 
@@ -69,6 +70,15 @@ export class UserModel {
       )
 
       const [newUser] = await connection.query('SELECT * FROM users WHERE username = ?', [username])
+      const idUser = newUser[0].idUser
+
+      // Write log
+      try {
+        const logDate = new Date().toISOString().slice(0, 10)
+        await connection.query('INSERT INTO registerLogs (idUser, timeStamp) VALUES (?, ?)', [idUser, logDate])
+      } catch (error) {
+        throw new Error('Error at writing log')
+      }
       return newUser
     } catch (error) {
       throw new Error('Error at registering user')
@@ -79,10 +89,29 @@ export class UserModel {
   static async loginUser ({ username, password }) {
     // Encrypt password here:
     const encryptedPassword = encrypt(password, SECRET_KEY)
+
     try {
       const [user] = await connection.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, encryptedPassword])
+
       if (user.length === 0) {
+        // Write failed login log
+        try {
+          const status = 'failed'
+          const logDate = new Date().toISOString().slice(0, 10)
+          await connection.query('INSERT INTO loginLogs (timeStamp, status, inputusername) VALUES (?, ?, ?)', [logDate, status, username])
+        } catch (error) {
+          throw new Error('Error at writing log')
+        }
         return null
+      }
+      const idUser = user[0].idUser
+      // Write success login log
+      try {
+        const status = 'success'
+        const logDate = new Date().toISOString().slice(0, 10)
+        await connection.query('INSERT INTO loginLogs (idUser, timeStamp, status, inputusername) VALUES (?, ?, ?, ?)', [idUser, logDate, status, username])
+      } catch (error) {
+        throw new Error('Error at writing log')
       }
       return user
     } catch (error) {
@@ -95,12 +124,21 @@ export class UserModel {
     oldPassword = encrypt(oldPassword, SECRET_KEY)
     newPassword = encrypt(newPassword, SECRET_KEY)
 
-    if (!verifyUser(username, oldPassword)) {
+    if (!(await verifyUser(username, oldPassword))) {
       return null
     }
 
     try {
       await connection.query('UPDATE users SET password = ? WHERE username = ?', [newPassword, username])
+
+      // Write log
+      try {
+        const timeStamp = new Date().toISOString().slice(0, 10)
+        const [idUser] = await connection.query('SELECT idUser FROM users WHERE username = ?', [username])
+        await connection.query('INSERT INTO passwordChangesLogs (idUser, timeStamp) VALUES (?, ?)', [idUser[0].idUser, timeStamp])
+      } catch (error) {
+
+      }
       return true
     } catch (error) {
       throw new Error('Error at modifying password')
@@ -111,12 +149,17 @@ export class UserModel {
   static async modifyUsername ({ username, password, newUsername }) {
     password = encrypt(password, SECRET_KEY)
 
-    if (!verifyUser(username, password)) {
+    if (!(await verifyUser(username, password))) {
       return null
     }
 
     try {
       await connection.query('UPDATE users SET username = ? WHERE username = ?', [newUsername, username])
+
+      // Write log
+      const [idUser] = await connection.query('SELECT idUser FROM users WHERE username = ?', [newUsername])
+      const timeStamp = new Date().toISOString().slice(0, 10)
+      await connection.query('INSERT INTO usernameChangesLogs (idUser, oldUsername, newUsername, timestamp) VALUES (?, ?, ?, ?)', [idUser[0].idUser, username, newUsername, timeStamp])
       return true
     } catch (error) {
       throw new Error('Error al modificar nombre de usuario')
@@ -127,12 +170,21 @@ export class UserModel {
   static async deleteUser ({ username, password }) {
     password = encrypt(password, SECRET_KEY)
 
-    if (!verifyUser(username, password)) {
+    if (!(await verifyUser(username, password))) {
       return null
     }
 
     try {
+      const idUser = await connection.query('SELECT idUser FROM users WHERE username = ?', [username])
+
       await connection.query('DELETE FROM users WHERE username = ?', [username])
+      // Write log
+      try {
+        const logDate = new Date().toISOString().slice(0, 10)
+        await connection.query('INSERT INTO deleteLogs (idUser, timeStamp) VALUES (?, ?)', [idUser.idUser, logDate])
+      } catch (error) {
+        throw new Error('Error at writing log')
+      }
       return true
     } catch (error) {
       throw new Error('Error al eliminar usuario')

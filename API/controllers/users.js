@@ -80,6 +80,7 @@ export class UserController {
 
   // Modify user password
   // Respond with a success message if the password is modified
+  // FALLA, DEJA ENTRAR TODAS LAS REQUESTS
   modifyPassword = async (req, res) => {
     const result = validatePartialUser(req.body)
     if (result.error) {
@@ -121,7 +122,6 @@ export class UserController {
 
     try {
       const modifiedUser = await this.userModel.modifyUsername({ username, password, newUsername })
-
       if (modifiedUser) {
         return res.json({ message: 'Username modified successfully' })
       } else {

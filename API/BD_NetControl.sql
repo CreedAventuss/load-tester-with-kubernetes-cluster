@@ -28,3 +28,42 @@ CREATE TABLE history (
     testDate DATE NOT NULL,
     FOREIGN KEY (IdUser) REFERENCES users(IdUser)
 );
+
+CREATE TABLE loginLogs (
+    logID INT PRIMARY KEY AUTO_INCREMENT,
+    idUser INT,
+    timeStamp DATE,
+    stauts VARCHAR(15),
+    inputusername VARCHAR(50),
+    FOREIGN KEY (idUser) REFERENCES users(IdUser)
+);
+
+CREATE TABLE registerLogs (
+    logID INT PRIMARY KEY AUTO_INCREMENT,
+    idUser INT,
+    timeStamp DATE,
+    FOREIGN KEY (idUser) REFERENCES users(IdUser)
+);
+
+CREATE TABLE deleteLogs (
+    logID INT PRIMARY KEY AUTO_INCREMENT,
+    idUser INT,
+    timeStamp DATE,
+    FOREIGN KEY (idUser) REFERENCES users(IdUser)
+);
+
+CREATE TABLE passwordChangesLogs (
+    logID INT PRIMARY KEY AUTO_INCREMENT,
+    isUser INT,
+    timeStamp DATE,
+    FOREIGN KEY (idUser) REFERENCES users(IdUser)
+)
+
+CREATE TABLE usernameChangesLogs (
+    logID INT PRIMARY KEY AUTO_INCREMENT,
+    idUser INT,
+    oldUsername VARCHAR(50) NOT NULL,
+    newUsername VARCHAR(50) NOT NULL,
+    timeStamp DATE,
+    FOREIGN KEY (idUser) REFERENCES users(IdUser)
+)
