@@ -1,5 +1,5 @@
 // Controller for users
-import { validateUser, validatePartialUser } from '../schemas/users.js'
+import { validateUser, validatePartialUser } from '../schemas/users-schema.js'
 
 // Class to manage users
 // All methods call the model to interact with the database

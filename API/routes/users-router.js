@@ -1,7 +1,7 @@
 // Router for users
 
 import { Router } from 'express'
-import { UserController } from '../controllers/users.js'
+import { UserController } from '../controllers/user-controller.js'
 
 // User model is passed as a parameter
 export const createUsersRouter = ({ userModel }) => {

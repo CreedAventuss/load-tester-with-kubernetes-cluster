@@ -2,7 +2,7 @@
 
 import express, { json } from 'express'
 import cors from 'cors'
-import { createUsersRouter } from './routes/users.js'
+import { createUsersRouter } from './routes/users-router.js'
 
 // Model is passed as a parameter to the app
 export const createApp = ({ userModel }) => {
