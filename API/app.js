@@ -7,8 +7,9 @@ import { createUsersRouter } from './routes/users-router.js'
 // Model is passed as a parameter to the app
 export const createApp = ({ userModel }) => {
   const app = express()
+
   app.use(cors())
-  app.use(json())
+  app.use(json()) // Accept JSON in the body of the request
 
   const PORT = process.env.PORT || 3000
 

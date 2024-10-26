@@ -37,7 +37,7 @@ export class UserController {
 
     // First check if username or email already exists
     try {
-      const userExists = await this.userModel.userExists({ username: req.body.username })
+      const userExists = await this.userModel.usernameExists({ username: req.body.username })
       if (userExists) {
         const username = req.body.username
         return res.status(400).json({ message: `Username ${username} is already in use, try another one` })
@@ -66,15 +66,14 @@ export class UserController {
     }
 
     try {
-      const loggedUser = await this.userModel.loginUser({ username, password })
-      if (loggedUser) {
-        const username = loggedUser[0].username
+      const login = await this.userModel.loginUser({ username, password })
+      if (login) {
         return res.json({ message: `User ${username} logged in successfully`, isAuth: true })
       } else {
         return res.status(401).json({ message: 'Invalid username or password', isAuth: false })
       }
     } catch (error) {
-      return res.status(500).json({ message: 'Error logging in' })
+      return res.status(500).json({ message: 'Error logging in', isAuth: false })
     }
   }
 

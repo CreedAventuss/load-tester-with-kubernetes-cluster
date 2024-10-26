@@ -2,17 +2,17 @@
 GET http://localhost:3000/users
 
 ### Get user by id
-GET http://localhost:3000/users/3
+GET http://localhost:3000/users/21
 
 ### Register user name, surname, namesurname, name@gmail.com, 2004-07-14, sample
 POST http://localhost:3000/users/register
 Content-Type: application/json
 
 {
-    "name": "Izan",
-    "surname": "Gil",
-    "username": "izangil",
-    "email": "izan@gmail.com",
+    "name": "Sample",
+    "surname": "Sample",
+    "username": "samplesample",
+    "email": "sample@gmail.com",
     "birthDate": "2004-07-14",
     "password": "sample"
 }
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 {
     "username": "izangil",
-    "password": "newpassword"
+    "password": "izangil"
 }
 
 ### Change password
@@ -32,7 +32,7 @@ Content-Type: application/json
 
 {
     "username": "izangil",
-    "oldPassword": "newpassword",
+    "oldPassword": "izangildev",
     "newPassword": "izangil"
 }
 
