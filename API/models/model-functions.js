@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise'
-
 import { encrypt } from '../encryptText.js'
+import bcrypt from 'bcrypt'
 
 // Configuration object for MySQL connection
 const config = {
@@ -11,16 +11,14 @@ const config = {
   database: 'NetControlDB'
 }
 
-// Secret key for encrypting passwords
-const SECRET_KEY = 'SecretKeyNetControlSolutionsSL'
-
 const connection = await mysql.createConnection(config)
 
-// Function to verify if a user exists in the database with username and password provided
+// Function to verify if a user exists in the database with username and not encrypted password provided
 const verifyUser = async (username, password) => {
   try {
-    const [user] = await connection.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password])
-    if (user.length === 0) {
+    const dbPassword = await connection.query('SELECT password FROM users WHERE username = ?', [username])
+    const match = await bcrypt.compare(password, dbPassword[0].password)
+    if (!match) {
       return false
     }
     return true
@@ -46,7 +44,7 @@ const writeNewUser = async (input) => {
     password
   } = input
 
-  const encryptedPassword = encrypt(password, SECRET_KEY)
+  const encryptedPassword = encrypt(password)
   const registerDate = getActualDate()
 
   try {
@@ -74,10 +72,9 @@ const writeGeneralLog = async (idUser, table) => {
 }
 
 const loginUser = async ({ username, password }) => {
-  const encryptedPassword = encrypt(password, SECRET_KEY)
   try {
-    const [user] = await connection.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, encryptedPassword])
-    if (user.length === 0) {
+    const userLogged = await verifyUser(username, password)
+    if (!userLogged) {
       return false
     }
     return true
@@ -95,8 +92,8 @@ const writeLoginLog = async (idUser, status, username) => {
 }
 
 const modifyPassword = async ({ username, oldPassword, newPassword }) => {
-  oldPassword = encrypt(oldPassword, SECRET_KEY)
-  newPassword = encrypt(newPassword, SECRET_KEY)
+  newPassword = encrypt(newPassword)
+  // To verify the user, we don't need to encrypt the old password
 
   if (!(await verifyUser(username, oldPassword))) {
     return null
@@ -110,7 +107,7 @@ const modifyPassword = async ({ username, oldPassword, newPassword }) => {
 }
 
 const modifyUsername = async ({ username, password, newUsername }) => {
-  password = encrypt(password, SECRET_KEY)
+  password = encrypt(password)
 
   if (!(await verifyUser(username, password))) {
     return null
@@ -124,7 +121,7 @@ const modifyUsername = async ({ username, password, newUsername }) => {
 }
 
 const deleteUser = async ({ username, password }) => {
-  password = encrypt(password, SECRET_KEY)
+  password = encrypt(password)
 
   if (!(await verifyUser(username, password))) {
     return null
